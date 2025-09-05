@@ -1,11 +1,11 @@
 package Boka.Kap132_134_136_lecture_3;
-
-public class Tabell {
-    public static void main(String[] args) {
-        int [] a = {3,8,10,12,14,16,21,24,27,30,32,33,34,37,40};
-        int verdi = 16;
-        System.out.println(lineærsøk(a, verdi));
-    }
+//
+//public class Tabell {
+//    public static void main(String[] args) {
+//        int [] a = {3,8,10,12,14,16,21,24,27,30,32,33,34,37,40};
+//        int verdi = 16;
+//        System.out.println(lineærsøk(a, verdi));
+//    }
 
     //1.3.5 oppgave 2
 
@@ -20,20 +20,20 @@ public class Tabell {
 //    }
 
     //1.3.5 oppgave 4
-    public static int lineærsøk(int[] a, int fra, int til, int verdi){
-        if (fra < 0 || til > a.length || fra > til) {
-            throw new IllegalArgumentException("ulovlig interval");
-        }
-        if (fra == til){
-            return -(fra + 1);
-        }
-        if (verdi > a[til-1]){
-            return -(til+1);
-        }
-        int i = fra;
-        for (;i<til&& a[i] < verdi; i++);
-        return (verdi == a[i] ? i : -(i+1));
-    }
+//    public static int lineærsøk(int[] a, int fra, int til, int verdi){
+//        if (fra < 0 || til > a.length || fra > til) {
+//            throw new IllegalArgumentException("ulovlig interval");
+//        }
+//        if (fra == til){
+//            return -(fra + 1);
+//        }
+//        if (verdi > a[til-1]){
+//            return -(til+1);
+//        }
+//        int i = fra;
+//        for (;i<til&& a[i] < verdi; i++);
+//        return (verdi == a[i] ? i : -(i+1));
+//    }
 
 
 //    public static void utvalgssortering(int[] a)
@@ -94,4 +94,4 @@ public class Tabell {
 //        }
 //        System.out.println(); // Avslutter med et linjeskift
 //    } // Basert på eksempel [4]
-}
+//}
