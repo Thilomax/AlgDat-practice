@@ -1,4 +1,4 @@
-package Fletting;
+package F5_Merge_and_Mergesort;
 
 import java.util.Arrays;
 

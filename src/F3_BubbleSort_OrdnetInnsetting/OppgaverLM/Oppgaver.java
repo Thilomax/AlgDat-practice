@@ -1,4 +1,4 @@
-package SorteringF3.OppgaverLM;
+package F3_BubbleSort_OrdnetInnsetting.OppgaverLM;
 
 import java.util.Arrays;
 
@@ -45,6 +45,7 @@ public class Oppgaver {
         // Finn og returner indeksen til det minste elementet i intervallet a[fra:til-1].
         // Anta at 'fra' er inkludert og 'til' er ekskludert (a[fra:til>).
         // Du kan bruke logikken fra metoden 'min' i kilde [10].
+        return fra;
     }
 
 
