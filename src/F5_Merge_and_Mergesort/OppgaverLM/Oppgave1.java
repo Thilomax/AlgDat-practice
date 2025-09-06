@@ -1,4 +1,4 @@
-package Merge_and_Mergesort.OppgaverLM;
+package F5_Merge_and_Mergesort.OppgaverLM;
 
 import java.util.Arrays;
 

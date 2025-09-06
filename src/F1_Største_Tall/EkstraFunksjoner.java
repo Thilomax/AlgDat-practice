@@ -1,4 +1,4 @@
-package Største_Tall;
+package F1_Største_Tall;
 
 import java.util.Random;
 
