@@ -4,9 +4,16 @@ import java.util.Arrays;
 
 public class OppgaverLM {
     public static void main(String[] args) {
-        char[] originalTabell = {'a', 'k', 'e', 'p', 'i', 'm', 'o', 't', 'u', 'b'};
-        char[][] resultat = partisjonerVokalerOgKonsonanter(originalTabell);
-        System.out.println(Arrays.deepToString(resultat));
+//        char[] originalTabell = {'a', 'k', 'e', 'p', 'i', 'm', 'o', 't', 'u', 'b'};
+//        char[][] resultat = partisjonerVokalerOgKonsonanter(originalTabell);
+//        System.out.println(Arrays.deepToString(resultat));
+
+        int[] tallTabell = {8, 3, 15, 13, 1, 9, 20, 3, 18, 2, 6, 25, 14, 8, 20, 16, 5, 21, 11, 14};
+        int skilleverdi = 10;
+        int skilletIndeks = partisjonerRundtSkilleverdi(tallTabell, skilleverdi);
+
+        System.out.println("Skillet er ved indeks: " + skilletIndeks);
+        System.out.println("Tabellen etter partisjonering: " + Arrays.toString(tallTabell));
 
 // Vokaler: ['a', 'e', 'i', 'o', 'u']
 // Konsonanter: ['k', 'p', 'm', 't', 'b']
@@ -18,6 +25,13 @@ public class OppgaverLM {
                 return true;
         }
         return false;
+    }
+    public static void bytt(int[] a, int i, int j) {
+        // Implementer kode her for å bytte a[i] og a[j].
+        // Inspirasjon finnes i kilde [2].
+        int tmp= a[i];
+        a[i]= a[j];
+        a[j]= tmp;
     }
 
     //Oppgave 1
@@ -49,5 +63,23 @@ Du kan bruke en eksisterende hjelpemetode erVokal(char c) for å sjekke om en ka
         }
         return new char[][]{vokalArray,konsonantArray};
     }
+    //Oppgave 2
+    public static int partisjonerRundtSkilleverdi(int[] tabell, int skilleverdi) {
+        int v = 0;
+        int h= tabell.length-1;
+        while (v<=h){
+            while (v<=h && tabell[v]< skilleverdi) v++;
+            while (v<=h &&tabell[h] >= skilleverdi) h--;
+            //denne if setningen brukes bare for å sjekke at pekernes posisjon gir mening å bytte. Den faktiske sjekken er at vi endelig er ute av while løkkene som BETYR at vi har funnet et element på feil plass på begge pekerne
+            if (v<h) {
+                bytt(tabell,v,h);
+                v++;
+                h--;
+            }
+
+        }
+        return v;
+    }
 
 }
+
