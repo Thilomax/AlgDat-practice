@@ -1,4 +1,4 @@
-package F5_Merge_and_Mergesort.OppgaverLM;
+package ForelesningerØving.F5_Merge_and_Mergesort.OppgaverLM;
 
 import java.util.Arrays;
 
