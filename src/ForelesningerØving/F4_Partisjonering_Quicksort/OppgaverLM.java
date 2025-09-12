@@ -1,4 +1,4 @@
-package F4_Partisjonering_Quicksort;
+package ForelesningerØving.F4_Partisjonering_Quicksort;
 
 import java.util.Arrays;
 

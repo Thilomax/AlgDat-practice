@@ -1,4 +1,4 @@
-package F1_Største_Tall;
+package ForelesningerØving.F1_Største_Tall;
 
 import java.util.Arrays;
 

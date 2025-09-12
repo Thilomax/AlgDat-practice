@@ -1,4 +1,4 @@
-package F3_BubbleSort_OrdnetInnsetting.OppgaverLM;
+package ForelesningerØving.F3_BubbleSort_OrdnetInnsetting.OppgaverLM;
 
 import java.util.Arrays;
 
