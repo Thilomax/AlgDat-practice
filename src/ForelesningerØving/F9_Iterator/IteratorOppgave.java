@@ -185,6 +185,37 @@ class EnkeltLenketListe<T> implements Iterable<T>{
         }
     }
 
+    //Denne metoden tar inn én ting utenfra, og den tingen kalles action.
+
+    /*Når du kaller forEach, kan du sende inn en lambda (eller en metodereferanse).
+        Eksempel:
+
+        liste.forEach(x -> System.out.println(x));
+
+        Her er action lik x -> System.out.println(x).
+        Når metoden din kjører action.accept(element), blir det i praksis:
+
+        System.out.println(element);*/
+
+    public void forEach(Consumer<? super T> action) {
+        // Hvis ingen handling blir sendt inn, gir det ikke mening å fortsette
+        if (action == null) throw new NullPointerException();
+
+        // Hent en iterator fra lista
+        Iterator<T> it = iterator();
+
+        // Gå gjennom alle elementene med iteratoren
+        while (it.hasNext()) {
+            // Ta ut neste element
+            T element = it.next();
+
+            // Utfør handlingen på elementet
+            // (f.eks. printing, logging, osv.)
+            action.accept(element);
+        }
+    }
+
+
 }
 
 public class IteratorOppgave {
