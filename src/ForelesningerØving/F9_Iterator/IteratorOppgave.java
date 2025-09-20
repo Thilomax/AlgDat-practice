@@ -27,8 +27,10 @@ package ForelesningerØving.F9_Iterator;
 * */
 
 
+import java.util.ConcurrentModificationException;
 import java.util.NoSuchElementException;
 import java.util.Iterator;
+import java.util.function.Consumer;
 
 class TabellListe<T> implements Iterable<T> { // Må implementere Iterable<T> for at for-each skal fungere.
 
@@ -96,6 +98,8 @@ class TabellListe<T> implements Iterable<T> { // Må implementere Iterable<T> fo
 
 class EnkeltLenketListe<T> implements Iterable<T>{
 
+    //Øk endringer++ kun når en faktisk strukturell endring skjedde, og helt på slutten av metoden.
+    private int endringer;
     private class Node<T> {
         T verdi;        // dataen vi lagrer i denne noden (av typen T)
         Node<T> neste;  // peker på neste node i kjeden, eller null hvis det er siste node
@@ -120,6 +124,12 @@ class EnkeltLenketListe<T> implements Iterable<T>{
     private Node<T> hale;
     private int antall;
 
+    public EnkeltLenketListe() {
+        endringer = 0;
+        hode = null;
+        hale = null;
+        antall = 0;
+    }
 
     @Override
     public Iterator<T> iterator() {
@@ -131,9 +141,13 @@ class EnkeltLenketListe<T> implements Iterable<T>{
         private Node<T> p; //denne peker på neste node som skal leses, på en måte en erstatning til "denne"
         private boolean fjernOK; //denne sjekker om de er lov å kalle remove(). Fordi remove kan bare fjerne elementet som ble returnert av SISTE KALL PÅ NEXT(), og man kan ikke kalle  remove() to ganger på rad uten et nytt next() imellom
         private Node<T> q; //pekeren på noden FØR P
+
+        private int iteratorEndringer;
+
         public EnkeltLenketListeIterator(){
             p = hode;
             fjernOK = false;
+            iteratorEndringer = endringer;
         }
         @Override
         public boolean hasNext() {
@@ -144,6 +158,7 @@ class EnkeltLenketListe<T> implements Iterable<T>{
 
         @Override
         public T next() {
+            if (endringer!=iteratorEndringer) throw new ConcurrentModificationException("Concurrent modification exception");
             if (!hasNext()) throw new NoSuchElementException("Det er ikke noe neste element");
             fjernOK = true; //fordi nå er det lov å fjerne siden vi har gjort next
             T tmp = p.verdi;
@@ -155,6 +170,7 @@ class EnkeltLenketListe<T> implements Iterable<T>{
 
         @Override
         public void remove() {
+            if (endringer!=iteratorEndringer) throw new ConcurrentModificationException("Concurrent modification exception");
             if (!fjernOK) throw new IllegalStateException("Ikke lov");
             if (q==hode){
                 hode=p;
@@ -164,6 +180,8 @@ class EnkeltLenketListe<T> implements Iterable<T>{
                 q=null;
                 antall--; //fordi vi fjerna en node
                 fjernOK = false; // fordi man kan ikke kjøre remove to ganger på rad.
+                endringer++;
+                iteratorEndringer++;
                 return;
 
             } else {
@@ -180,7 +198,8 @@ class EnkeltLenketListe<T> implements Iterable<T>{
                 q=null;
                 antall--;
                 fjernOK = false; // fordi man kan ikke kjøre remove to ganger på rad.
-
+                endringer++;
+                iteratorEndringer++;
             }
         }
     }
@@ -195,7 +214,15 @@ class EnkeltLenketListe<T> implements Iterable<T>{
         Her er action lik x -> System.out.println(x).
         Når metoden din kjører action.accept(element), blir det i praksis:
 
-        System.out.println(element);*/
+        System.out.println(element);
+
+
+        action = «handlingen» du ønsker å utføre på hvert element i lista.
+
+        Den blir kalt for hvert element gjennom action.accept(element).
+
+        Du bestemmer selv hva den handlingen er når du kaller forEach.
+        */
 
     public void forEach(Consumer<? super T> action) {
         // Hvis ingen handling blir sendt inn, gir det ikke mening å fortsette
