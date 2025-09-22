@@ -4,7 +4,7 @@ public class Dato_09_15_Lister {
     public static void main(String[] args) {
 
     }
-    class TabellListe<T> implements Liste<T>{
-
-    }
+//    class TabellListe<T> implements Liste<T>{
+//
+//    }
 }
