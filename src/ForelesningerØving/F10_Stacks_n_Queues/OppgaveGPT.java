@@ -20,6 +20,19 @@ interface Kø<T>{
     void nullstill();
 }
 
+interface Toveiskø<T>{
+    void leggInnFørst(T verdi);
+    void leggInnSist(T verdi);
+    T taUtFørst();
+    T taUtSist();
+    T kikkFørst();
+    T kikkSist();
+    int antall();
+    boolean tom();
+    void nullstill();
+
+}
+
 interface Deque<T>{
     void leggInnførst(T verdi);
     void leggInnSist(T verdi);
@@ -202,23 +215,29 @@ class TabellKø<T> implements Kø<T>{
     public void enqueue(T verdi) {
         if (a.length == antall) utvidTabell();
         a[til] = verdi;
-        til = (til+1) % antall;
+        til = (til+1) % kapasitet;
         antall ++;
     }
 
     @Override
     public T dequeue() {
-        return null;
+        if (tom()) throw new NoSuchElementException("Lista er tom");
+        T tmp = a[fra];
+        a[fra]=null;
+        fra= (fra+1) % kapasitet; // flytter fra en plass videre, fordi vi fjerner det første elementet
+        antall--;
+        return tmp;
     }
 
     @Override
     public T peek() {
-        return null;
+        if (tom()) throw new NoSuchElementException("Lista er tom");
+        return a[fra];
     }
 
     @Override
     public int antall() {
-        return 0;
+        return antall;
     }
 
     @Override
@@ -228,7 +247,12 @@ class TabellKø<T> implements Kø<T>{
 
     @Override
     public void nullstill() {
-
+        for (int i = 0; i < antall; i++){ // går gjennom antall elementer i lista- ganger
+            a[(fra+i) % kapasitet] = null; // indeksen wrappes når den når kapasiteten,
+        }
+        fra = 0;
+        til = 0;
+        antall = 0;
     }
 }
 
@@ -254,37 +278,273 @@ class LenketKø<T> implements Kø<T>{
     public void enqueue(T verdi) {
         if (verdi ==null) throw new NullPointerException("Null er ikke lov");
         Node<T> ny = new Node<>(verdi);
-        hale.neste = ny;
-        hale= ny;
+        if (antall == 0){
+            hode = ny;
+            hale = ny;
+        } else{
+            hale.neste = ny;
+            hale= ny;
+        }
         antall++;
     }
 
     @Override
     public T dequeue() {
-        return null;
+        if (tom()) throw new NoSuchElementException("Køen er tom");
+        T tmp = hode.verdi;
+        hode.verdi = null;
+        hode = hode.neste;
+        if (hode== null) hale = null; //hvis køen er tom etter man fjerna hode, så må hale også nulles ut.
+        antall--;
+        return tmp;
     }
 
     @Override
     public T peek() {
-        return null;
+        if (tom()) throw new NoSuchElementException("Køen er tom");
+        return hode.verdi;
     }
 
     @Override
     public int antall() {
-        return 0;
+        return antall;
     }
 
     @Override
     public boolean tom() {
-        return false;
+        return antall == 0;
     }
 
     @Override
     public void nullstill() {
-
+        Node<T> p = hode;
+        while(p!=null){
+            Node<T> neste = p.neste;
+            p.verdi = null;
+            p.neste = null;
+            p = neste;
+        }
+        hode = null;
+        hale = null;
+        antall = 0;
     }
 }
 
+class LenketToveiskø<T> implements Toveiskø<T>{
+    private Node<T> hode;
+    private int antall;
+    private Node<T> hale;
+
+
+    private class Node<T>{
+        T verdi;
+        Node<T> neste;
+        Node<T> forrige;
+
+        public Node(T verdi){
+            this(verdi, null, null);
+        }
+        public Node(T verdi, Node<T> neste, Node<T> forrige){
+            this.verdi = verdi;
+            this.neste = neste;
+            this.forrige = forrige;
+        }
+    }
+    @Override
+    public void leggInnFørst(T verdi) {
+        if (verdi==null) throw new NullPointerException("Null er ikke lov");
+        Node<T> ny = new Node<>(verdi);
+        if (antall == 0) {
+            hode = ny;
+            hale = ny;
+        } else {
+            ny.neste = hode;
+            hode.forrige = ny;
+            hode = ny;
+        }
+        antall++;
+    }
+
+    @Override
+    public void leggInnSist(T verdi) {
+        if (verdi==null) throw new NullPointerException("Null er ikke lov");
+        Node<T> ny = new Node<>(verdi);
+        if (antall == 0) {
+            hode = ny;
+            hale = ny;
+        } else {
+            ny.forrige = hale;
+            hale.neste = ny;
+            hale = ny;
+        }
+        antall++;
+    }
+
+    @Override
+    public T taUtFørst() {
+        if (antall==0) throw new NoSuchElementException("Lista er tom");
+        T tmp = hode.verdi;
+        Node<T> neste = hode.neste;
+
+        hode.verdi=null;
+        hode.neste=null;
+        hode = neste;
+
+        if (hode==null) hale=null;
+        else hode.forrige=null;
+
+        antall--;
+        return tmp;
+    }
+
+    @Override
+    public T taUtSist() {
+        if (antall==0) throw new NoSuchElementException("Lista er tom");
+        T tmp = hale.verdi;
+        Node<T> forrige = hale.forrige;
+
+        hale.verdi=null;
+        hale.forrige=null;
+        hale = forrige;
+
+        if (hale == null) hode =null;
+        else hale.neste =null;
+
+        antall--;
+        return tmp;
+    }
+
+    @Override
+    public T kikkFørst() {
+        if (antall==0) throw new NoSuchElementException("Lista er tom");
+        return hode.verdi;
+    }
+
+    @Override
+    public T kikkSist() {
+        if (antall==0) throw new NoSuchElementException("Lista er tom");
+        return hale.verdi;
+    }
+
+    @Override
+    public int antall() {
+        return antall;
+    }
+
+    @Override
+    public boolean tom() {
+        return (antall == 0);
+    }
+
+    @Override
+    public void nullstill() {
+        Node<T> p = hode;
+        while (p!= null){
+            Node<T> neste = p.neste;
+            p.verdi = null;
+            p.neste =null;
+            p.forrige = null;
+            p = neste;
+        }
+        hode = null;
+        hale = null;
+        antall = 0;
+    }
+}
+
+class TabellToveiskø<T> implements Toveiskø<T>{
+
+    T[] a;
+    int fra;
+    int til;
+    int antall, kapasitet;
+
+    public TabellToveiskø(int kapasitet){
+        this.kapasitet = kapasitet;
+        a = (T[]) new Object[kapasitet];
+    }
+
+    private void utvidTabell() {
+        kapasitet *= 2; // (valgfritt) kan droppe dette og kun bruke a.length
+        T[] tmp = (T[]) new Object[kapasitet];
+        // Vi kan ikke bruke system.arraycopy fordi srcPos og destPos vil endre seg stadig vekk siden det er sirkulært
+        for (int i = 0; i < antall; i++){
+            tmp[i] = a[(fra+i) % kapasitet]; // % kapasitet sier basically at vi teller fra 0 igjen når den når kapasitet.
+        }
+        a = tmp;
+    }
+
+    @Override
+    public void leggInnFørst(T verdi) {
+        if (antall == kapasitet) utvidTabell();
+        if (verdi == null) throw new NullPointerException("Null er ikke lov");
+        fra = (fra-1+kapasitet) % kapasitet; // fra-1 + KAPASITET -> VIKTIG!!!! fordi ellers får man negative tall og det funker ikke ordentlig.
+        a[fra] = verdi;
+        antall++;
+    }
+
+    @Override
+    public void leggInnSist(T verdi) {
+        if (antall == kapasitet) utvidTabell();
+        if (verdi == null) throw new NullPointerException("Null er ikke lov");
+        a[til] = verdi; //til peker alltid på FØRSTE LEDIGE POSISJON, ikke siste element. Derfor setter vi verdien inn før vi;
+        til = (til+1+kapasitet) % kapasitet;  // flytte til et hakk videre i sirkelen.
+        antall++;
+    }
+
+    @Override
+    public T taUtFørst() {
+        if (tom()) throw new NoSuchElementException("Køen er tom");
+        T tmp  = a[fra];
+        a[fra] = null;
+        fra = (fra+1) % kapasitet; //flytter fra et hakk videre, så vi tar + istedenfor -.
+        antall--;
+        return tmp;
+    }
+
+    @Override
+    public T taUtSist() {
+        if (tom()) throw new NoSuchElementException("Køen er tom");
+        // Og, når vi har minus, så må vi alltid plusse på kapasitet fordi ellers så kan negative tall oppstå. Å plusse på kapasitet endrer ikke resultatet fordi det påvirker ikke modulus annet enn å hindre negative tall
+        til = (til-1 + kapasitet) % kapasitet; // Flytter FØR vi henter verdien fordi til peker alltid på siste LEDIGE plass, ikke det siste elementet.
+        T tmp = a[til];
+        a[til] = null;
+        antall--;
+        return tmp;
+    }
+
+    @Override
+    public T kikkFørst() {
+        if (tom()) throw new NoSuchElementException("Køen er tom");
+        return a[fra];
+    }
+
+    @Override
+    public T kikkSist() {
+        if (tom()) throw new NoSuchElementException("Køen er tom");
+        return a[(til-1+kapasitet)% kapasitet]; // returnerer verdien til det siste faktiske elemetet (så vi må flytte det et hakk bakover)
+    }
+
+    @Override
+    public int antall() {
+        return antall;
+    }
+
+    @Override
+    public boolean tom() {
+        return (antall == 0);
+    }
+
+    @Override
+    public void nullstill() {
+        for (int i = 0; i < antall; i++){
+            a[(fra+i)%kapasitet] = null; // iterer fordi vi plusser i på fra hver gang, men når den når kapasiteten så wrapper den.
+        }
+        fra= 0;
+        til = 0;
+        antall = 0;
+    }
+}
 public class OppgaveGPT {
     public static void main(String[] args) {
 
