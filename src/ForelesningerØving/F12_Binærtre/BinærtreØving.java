@@ -1,5 +1,9 @@
 package ForelesningerØving.F12_Binærtre;
 
+import ForelesningerØving.F10_Stacks_n_Queues.LenketKø;
+
+import java.util.NoSuchElementException;
+
 class BinTre<T>{
     private Node<T> rot;
     private int antall;
@@ -24,6 +28,8 @@ class BinTre<T>{
         this.antall = 0;
     }
 
+    /*Denne leggInnmetoden bruker bitshift som traversering, ikke iterasjon over et char array.*/
+
     public final void leggInn(int indeks, T verdi){
         //sjekker indeks
         if (indeks<=0) throw new IllegalArgumentException("Ugyldig indeks.");
@@ -45,7 +51,7 @@ class BinTre<T>{
         Node<T> p = rot;
 
 
-            // 4) Start masken på biten UNDER(fordi vi hopper over rota) MSB (Most significant Bit) i indeks
+        // 4) Start masken på biten UNDER(fordi vi hopper over rota) MSB (Most significant Bit) i indeks
         // highestOneBit(indeks) er MSB. >> 1 hopper over rot-biten
         // >> 1 betyr bit-shift til høyre i Java.
         int neste = Integer.highestOneBit(indeks) >> 1;
@@ -88,6 +94,110 @@ class BinTre<T>{
         - stopper på forelderen før siste bit,
         - og lar LSB (least significant bit) bestemme om vi fester som venstre eller høyre barn.
         Dette kan også gjøres med en char array og iterere over den, så slipper man å tukle med mask og de rare greiene.*/
+    }
+
+    public final void leggInnCharArray(int indeks, T verdi){
+        if (verdi == null) throw new IllegalArgumentException("Null-verdi ikke tillatt.");
+
+        if (indeks<=0) throw new IllegalArgumentException("Ugyldig indeks.");
+
+        // 2) Spesialtilfelle: posisjon 1 er roten
+        if (indeks == 1) {
+            // Hvis det allerede finnes en rot, er plassen opptatt
+            if (rot != null) throw new IllegalArgumentException("Roten er allerede opptatt");
+            // Ellers opprett roten og øk antall
+            rot = new Node<>(verdi);
+            antall++;
+            return;
+        }
+
+        // 3) Kan ikke sette inn under en tom rot. Forelder mangler for alle k > 1. Så hvis indeks er større enn 1, så ønskes det å sette på en høyere indeks enn rota, det går ikke!!!!
+        if (indeks > 1 && rot == null) throw new IllegalArgumentException("Forelder mangler");
+
+        // p brukes til å vandre i treet. Etter navigasjon stopper p på FORELDEREN
+        Node<T> p = rot;
+
+        String binærIndeks = Integer.toBinaryString(indeks);
+        char[] binærarray = binærIndeks.toCharArray();
+
+        //vi må iterere til binærarray.length -1 for å komme til posisjonen der forelder skal være
+        for (int i = 1; i<binærarray.length-1; i++){
+            if (binærarray[i]=='1') p=p.høyre; //må sammenligne med '1' fordi det er en char
+            if (binærarray[i]=='0')p = p.venstre;
+
+            //hvis pekeren p er på null nå, så hadde vi trengt å en forelder som ikke eksisterer for å legge inn noden vår, så det går ikke.
+            if (p == null) throw new IllegalArgumentException("Forelder mangler.");
+        }
+
+        //nå er vi på plassen til forelderen til noden vår
+        //Vi stopper på forelderen, fordi hvis vi ville legge inn i loopen hadde vi måttet sjekke hver gang "er dette siste bit? hvis ja, legg til" men her bare gjør vi det når vi har nådd riktig posisjon
+
+        if (binærarray[binærarray.length-1] == '0'){
+            if (p.venstre != null) throw new IllegalArgumentException("Plassen er allerede opptatt.");
+            p.venstre = new Node<>(verdi);
+            antall++;
+        }
+        if (binærarray[binærarray.length-1] == '1'){
+            if (p.høyre != null) throw new IllegalArgumentException("Plassen er allerede opptatt.");
+            p.høyre = new Node<>(verdi);
+            antall++;
+        }
+    }
+
+    /*Del 3: Preorden, inorden, postorden og nivåorden*/
+
+    public void preorden(){
+        if (rot != null)
+            preorden(rot);
+
+    }
+
+    public void inorden(){
+        if (rot != null)
+            inorden(rot);
+
+    }
+
+    public void postorden(){
+        if (rot != null)
+            postorden(rot);
+    }
+
+    /*PREORDEN: Først seg selv, så venstre, så høyre*/
+    private void preorden(Node<T> p){
+        if (p==null) return;
+        System.out.println(p.verdi);  //printer seg selv
+        preorden(p.venstre);        // kaller metoden rekursivt på venstrebarn. Dette gjør: print først venstre barnet, så gå til venstrebarnet til det og print deg og fortsett til det ikke er noe venstrebarn, så går den opp grenene igjen og printer venstrebarna helt ned og så begynner den på høyrebarna
+        preorden(p.høyre);          // printer høyre
+    }
+
+    private void inorden(Node<T> p){
+        if (p==null) return;
+        inorden(p.venstre);            //behandle først venstre barna
+        System.out.println(p.verdi);
+        inorden(p.høyre);
+    }
+
+    private void postorden(Node<T> p){
+        if (p==null) return;
+        postorden(p.venstre);
+        postorden(p.høyre);
+        System.out.println(p.verdi);
+    }
+
+    /*Bruke en kø for å printe ut FIFO. */
+    public void nivåorden(){
+        if (rot == null) return;
+        LenketKø lk = new LenketKø();               //Oppretter en ny lenket kø
+        lk.enqueue(rot);                            //legger til roten i den lenkede køen
+        Node<T> p = rot;
+        while(!lk.tom()){                           //bruker tom()-metoden jeg lagde hehe
+            p = (Node<T>) lk.dequeue();
+            System.out.println(p.verdi);       // fjerner og printer ut det første elementet i køen
+
+            if (p.venstre!=null) lk.enqueue(p.venstre); //legger til eventuelle venstrebarn i køen (som blir fjerna neste runde)
+            if (p.høyre!=null) lk.enqueue(p.høyre);     //legger til eventuelle høyrebarn
+        }
     }
 }
 
