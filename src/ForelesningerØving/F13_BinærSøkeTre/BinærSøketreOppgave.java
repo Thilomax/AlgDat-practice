@@ -225,7 +225,7 @@ class BinærSøketre<T> implements Beholder<T> {
             }
             current.verdi = p.verdi;
             fjernNode(p, q); //vil rekursivt fjerne denne verdien
-            //kunne slette direkte, ville vært å sete forelders peker til p.høyre.
+            //kunne slette direkte, ville vært å sette forelders peker til p.høyre.
         }
 
     }
