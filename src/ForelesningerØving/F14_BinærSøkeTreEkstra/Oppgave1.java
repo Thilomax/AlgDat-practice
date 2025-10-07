@@ -1,5 +1,7 @@
 package ForelesningerØving.F14_BinærSøkeTreEkstra;
 
+import ForelesningerØving.F10_Stacks_n_Queues.LenketStabel;
+import ForelesningerØving.F10_Stacks_n_Queues.Stabel;
 import ForelesningerØving.F8_Lister.Beholder;
 
 import java.util.Comparator;
@@ -102,6 +104,22 @@ class BinærSøkeTre<T> implements Beholder<T>{
         return null;
     }
 
+    /**Rekursiv variant av finnNode*/
+    private NodePar<T> finnNodeRekursiv(Node<T> current, Node<T> forelder, T t){
+        if (current == null)
+            return null; // basistilfelle: vi har gått tom for noder uten å finne verdien
+
+        int cmpv = cmp.compare(t, current.verdi);
+        if (cmpv<0)
+            return finnNodeRekursiv(current.venstre, current, t); //kaller rekursivt på venstre subtre. Current.venstre blir nye current, current blir nye forelder og vi sender med verdien
+        else if (cmpv>0)
+            return finnNodeRekursiv(current.høyre, current, t);
+        else
+            // cmpv == 0: verdien vi leter etter finnes i denne noden (current)
+            // vi returnerer både denne noden og dens forelder
+            return new NodePar<>(forelder, current);
+    }
+
     /**
      * Steg 0: Ta inn en current node og en forelder node
      * TO BARN:
@@ -179,6 +197,59 @@ class BinærSøkeTre<T> implements Beholder<T>{
 
         // 5. Returner true for å indikere at en verdi ble fjernet.
         return true;
+    }
+
+    /**
+     * Fjerner alle forekomster av verdien t.
+     * Idé: Finn alle forekomster langs høyre-kjeden (fordi duplikater alltid går til høyre),
+     * legg dem på en stabel, og fjern dem i FILO-rekkefølge (nederst først).
+     * Nederste forekomster har maks ett barn, så vi slipper 2-barns-tilfellet.
+     */
+    public int fjernAlle(T t){
+        Stabel<NodePar<T>> stabel = finnAlle(t);
+        int teller = 0; // hvor mange vi fjernet
+
+        // Fjern nederst-til-øverst for å unngå 2-barn-tilfeller underveis
+        while (!stabel.tom()){ //iterer over listen i FILO. Altså første forekomst vi ser blir fjernet sist.
+            NodePar<T> par = stabel.pop();  //(forelder, current) for én forekomst av t. Fjerner nåværende node fra stabelen og vi får nodeparet tilbake av pop-metoden,
+                                            // som vi kan bruke i fjernNode (fra det faktiske binærsøketreet)
+
+            fjernNode(par.current, par.forelder); //Fjerner nåværende node i while løkken fra binærsøketreet. Trygg fjerning (0/1-barn fordi vi går nedenfra)
+            teller++; //Øker telleren
+        }
+        // VIKTIG: fjernNode() oppdaterer ikke antall.
+        // Siden vi kalte fjernNode() direkte (ikke fjern(t)), må vi justere antall her:
+        antall-=teller;
+        return teller;
+    }
+
+    /**
+     * Finn alle forekomster av t langs høyre-kjeden (duplikatregelen).
+     * Returnerer en stabel med (forelder, current) for hver forekomst.
+     * Vi fjerner senere fra bunnen (FILO), så pekerne "over" forblir gyldige.
+     */
+    private Stabel<NodePar<T>> finnAlle(T t){
+        Objects.requireNonNull(t, "Null-verdi er ikke lov");
+        Stabel<NodePar<T>> stabel = new LenketStabel<>();
+
+        // Startpunkt for søk i (sub)treet vi fortsatt ikke har tømt for t-verdier
+        Node<T> current = rot;
+        Node<T> forelder = null;
+
+        // Vi finner én forekomst om gangen (nærmest roten i dette (sub)treet),
+        // skyver den på stabelen, og fortsetter videre i høyre subtre for å finne neste forekomst.
+        while (true) {
+            // Viktig: vi kaller rekursivt søk fra 'current' og lar metoden finne RIKTIG forelder underveis.
+            NodePar<T> par = finnNodeRekursiv(current, forelder, t);
+
+            if (par == null) // Ingen flere forekomster i dette (sub)treet
+                break;
+
+            stabel.push(par);       // Lagre (forelder, current) for senere fjerning FILO
+            forelder = par.current; // Neste søk skal ha denne som forelder til roten i neste subtre
+            current  = par.current.høyre; // Alle duplikater ligger langs høyre-grenen
+        }
+        return stabel;
     }
 
     @Override
