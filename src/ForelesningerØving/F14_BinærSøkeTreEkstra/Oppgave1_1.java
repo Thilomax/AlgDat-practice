@@ -130,15 +130,16 @@ class SBinTre<T> implements Beholder<T> {
         return null;
     }
 
-
-    @Override
-    public boolean fjern(T t) {
-        return false;
-    }
-
     @Override
     public int antall() {
-        return 0;
+        return antall(rot);
+    }
+    public int antall(Node<T> current){
+        if (current == null)
+            return 0;
+
+        //Returnerer 1(noden selv) pluss alle noder i venstre subtre pluss alle i høyre subtre
+        return 1 + antall(current.venstre) + antall(current.høyre);
     }
 
     @Override
@@ -176,6 +177,61 @@ class SBinTre<T> implements Beholder<T> {
     public boolean inneholderSimpel(T t){
         Objects.requireNonNull(t, "null er ikke lov");
         return finnNode(t) != null;
+    }
+
+
+    @Override
+    public boolean fjern(T t) {
+        Objects.requireNonNull(t, "Null er ikke lov");
+        NodePar<T> par = finnNode(t);
+        if (par==null) return false;
+        fjernNode(par.current, par.forelder);
+        return true;
+    }
+
+    private void fjernNode(Node current, Node forelder){
+        if (current.høyre !=null && current.venstre !=null){
+            //To barn
+            Node<T> p = current.høyre;
+            Node<T> q = null;
+            while(p.venstre!= null){
+                q=p;
+                p = p.venstre;
+            }
+            //nå har vi funnet neste node i inorden så nå må vi bytte current(den vi vil fjerne) sin verdi og p(neste i inorden) sin verdi
+            current.verdi = p.verdi;
+
+            // fjern etterfølger-noden p:
+            // p har aldri venstre barn. Den kan ha et høyrebarn.
+            // To deltilfeller:
+                // (i) etterfølgeren var direkte høyrebarn av current (q == current)
+                // (ii) etterfølgeren ligger lenger ned (q != current)
+            if (q == current) {
+                // successor var current.høyre; koble forbi p med p.høyre
+                q.høyre = p.høyre;
+            } else {
+                // successor lå som q.venstre; koble forbi p med p.høyre
+                q.venstre = p.høyre;
+            }
+
+        } else{
+            //0 eller 1 barn
+            Node<T> b;
+            if (current.venstre !=null) b = current .venstre;
+
+            /*Har noden bare venstre barn, behold venstrebarnet.
+            Har den bare høyre barn, behold høyrebarnet.
+            Har den ingen barn, sett peker til null.*/
+            else b=current.høyre; //denne kan være null
+
+            if (forelder == null) rot = b;
+            else {
+                if (forelder.venstre == current)  //hvis noden vi vil slette (current) er foreldres venstrebarn, setter vi foreldres venstrepeker til å peke på barnet til current
+                    forelder.venstre = b;
+                else
+                    forelder.høyre = b;
+            }
+        }
     }
 
 
