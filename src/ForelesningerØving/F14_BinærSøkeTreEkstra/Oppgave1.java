@@ -6,6 +6,7 @@ import ForelesningerØving.F8_Lister.Beholder;
 
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 class BinærSøkeTre<T> implements Beholder<T>{
 
@@ -271,6 +272,34 @@ class BinærSøkeTre<T> implements Beholder<T>{
     public void nullstill() {
 
     }
+
+    private void inordenSJ(Node current, StringJoiner sj) {
+        if (current == null) return;
+        // Basistilfelle: hvis noden er null (dvs. ingen gren her), avslutt rekursjonen
+
+        inordenSJ(current.venstre, sj);
+        // Først: gå rekursivt helt ned til venstre (minste verdi)
+
+        sj.add(String.valueOf(current.verdi));
+        // Deretter: legg til verdien til denne noden.
+        // Denne kalles først for den venstre-mest noden, og deretter "bobler" den oppover i call stacken.
+        // Derfor blir verdiene lagt til i stigende rekkefølge.
+
+        inordenSJ(current.høyre, sj);
+        // Til slutt: gå rekursivt ned til høyre gren (større verdier)
+    }
+
+    public String toString() {
+        StringJoiner sj = new StringJoiner(", ", "[", "]");
+        // Lager en StringJoiner som formaterer resultatet som en liste: [v1, v2, v3]
+
+        inordenSJ(rot, sj);
+        // Starter den rekursive traverseringen fra rot
+
+        return sj.toString();
+        // Returnerer resultatet som én formatert streng
+    }
+
 }
 
 public class Oppgave1 {
