@@ -72,11 +72,11 @@ class BinærSøketre<T> implements Beholder<T> {
         Node<T> p = rot;
         Node<T> prev = null;
         while (p!=null){
-            prev = p;
+            prev = p; //alltid en node bak p
             if (cmp.compare(t, p.verdi)<0)
-                p=p.venstre;
+                p=p.venstre; //hvis verdien vi vil legge inn er mindre enn p sin verdi gå til venstre
             else
-                p=p.høyre;
+                p=p.høyre;  //hvis verdien vi vil legge inn er større enn p sin verdi gå til høyre
         }
         p = new Node<>(t);
         if (prev == null)
@@ -145,14 +145,105 @@ class BinærSøketre<T> implements Beholder<T> {
 
     @Override
     public boolean inneholder(T t) {
+        Node<T> current = rot; //begynner på rota
+        while(current != null){
+            // Sjekk rota om verdien vi leter etter er mindre eller større enn verdien i rota
+            if (cmp.compare(t, current.verdi)==0)
+                return true; //Da er current sin verdi lik den vi leter etter, da har vi funnet den så den finnes.
+            else if (cmp.compare(t, current.verdi)<0)
+                current = current.venstre; //Mindre → gå til venstre
+            else
+                current = current.høyre; //Større → gå til høyre
+        }
         return false;
     }
+
+    //inneholder() kan også gjøres som en finnNode() som returnerer en node
+
+    public Node<T> finnNode(T t) {
+        Node<T> current = rot; //begynner på rota
+        while(current != null){
+            // Sjekk rota om verdien vi leter etter er mindre eller større enn verdien i rota
+            if (cmp.compare(t, current.verdi)==0)
+                return current; //Da er current sin verdi lik den vi leter etter, da har vi funnet den så den finnes.
+            else if (cmp.compare(t, current.verdi)<0)
+                current = current.venstre; //Mindre → gå til venstre
+            else
+                current = current.høyre; //Større → gå til høyre
+        }
+        return null;
+    }
+
+    private Node<T> finnNodeRekursiv(Node<T> current, T t){
+        if (current == null)
+            return null;
+        int cmpv = cmp.compare(t, current.verdi); //lagrer sjekken i en int
+        if (cmpv == 0)
+            return current;
+        else if (cmpv <0)
+            return finnNodeRekursiv(current.venstre, t); //kaller rekursivt og sender inn venstre barnet som current
+        else return finnNodeRekursiv(current.høyre, t); //samme men med høyre
+    }
+
+    private Node<T> finnNodeRekursiv(T t) {
+        return finnNodeRekursiv(rot, t);
+    }
+
+    //TODO: Trenger informasjon om forelder, lag klasse nodepara
+    private void fjernNode(Node<T> current, Node<T> forelder){
+        if (current.venstre == null && current.høyre ==null){ // hvis jeg ikke har noen barn
+            //ingen barn
+            if (forelder==null) //da er jeg rotnoden, har ingen forelder
+                rot = null;
+            else if (forelder.venstre == current)
+                forelder.venstre = null; //fjerner forelders venstrepeker hvis jeg er venstrebarnet
+            else
+                forelder.høyre=null; //fjerner forelders høyrepeker hvis jeg er høyrebarnet
+        } else if (current.høyre == null) {
+            //hvis jeg bare har ett barn: Må sette forelderens peker til å hoppe over meg, har venstrebarn men ikke høyrebarn
+            if (forelder == null)
+                rot = current.venstre;
+            else if(forelder.venstre == current)
+                forelder.venstre = current.venstre;
+            else
+                forelder.høyre = current.venstre;
+        } else if (current.venstre == null) {
+            //Har høyrebarn men ikke venstrebarn
+            if (forelder == null)
+                rot = current.høyre;
+            else if(forelder.venstre == current)
+                forelder.venstre = current.høyre;
+            else
+                forelder.høyre = current.høyre;
+        } else {
+            //har to barn
+            Node<T> p = current.høyre; //p betyr current
+            Node<T> q = current; // q betyr forelder
+            while (p.venstre != null){
+                q = p;
+                p = p.venstre;
+            }
+            current.verdi = p.verdi;
+            fjernNode(p, q); //vil rekursivt fjerne denne verdien
+            //kunne slette direkte, ville vært å sette forelders peker til p.høyre.
+        }
+
+    }
+//    public boolean fjern(T t){
+//        NodePar<T> par = finnNode(t);
+//        if (par == null)
+//            return false;
+//        fjern(par.current, par.forelder);
+//        return true;
+//    }
 
     @Override
     public void nullstill() {
 
     }
 }
+
+
 public class BinærSøketreOppgave {
     public static void main(String[] args) {
         // 1) Lag tre for Integer med naturlig sortering
