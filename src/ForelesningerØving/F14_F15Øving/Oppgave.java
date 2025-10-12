@@ -1,11 +1,12 @@
 package ForelesningerØving.F14_F15Øving;
 
+import ForelesningerØving.F10_Stacks_n_Queues.LenketStabel;
+import ForelesningerØving.F10_Stacks_n_Queues.Stabel;
 import ForelesningerØving.F8_Lister.Beholder;
 
-import java.util.Comparator;
-import java.util.Objects;
+import java.util.*;
 
-class SBinTre<T> implements Beholder<T> {
+class SBinTre<T> implements Beholder<T>, Iterable<T> {
     Node<T> rot;
     int antall;
     Comparator<? super T> cmp;
@@ -14,6 +15,86 @@ class SBinTre<T> implements Beholder<T> {
         this.cmp = cmp;
         this.rot = null;
         this.antall = 0;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new InordenIterator();
+    }
+
+    //Den implementerer Iterator<T>, slik at vi kan bruke: for (T verdi : mittTre) { ... }
+    //Vi har en denne-peker som peker på neste node som skal returneres.
+    /*Vi bruker en stabel for å lagre alle foreldrene, fordi når vi går ned til første i inorden, er de neste de nodene på vei OPP IGJEN til rota, og det hadde vi ikke hatt tilgang til uten en stabel.*/
+    private final class InordenIterator implements Iterator<T> {
+        Node<T> denne;                          //peker på noden vi står på nå
+        Stabel<Node<T>> nodeStabel;             //Dette brukes for å huske veien ned i treet mens vi går inorden. altså lagrer verdiene underveis nedover.
+
+
+        public InordenIterator(){
+            denne = rot;
+            nodeStabel = new LenketStabel<>();
+
+
+            /*Her går vi helt ned til venstre i treet, fordi:
+            I inorden er den venstre noden alltid først.
+            Hver gang vi går nedover til venstre, legger vi den nåværende noden (denne) på stabelen, slik at vi senere kan komme tilbake til den.
+            Etter løkka:
+            denne peker nå på den minste noden i hele treet (første i inorden).
+            Stabelen inneholder alle forfedre på veien ned.*/
+            while (denne.venstre!=null){
+                nodeStabel.push(denne);
+                denne = denne.venstre;
+            }
+            //denne peker nå på den minste noden i hele treet (første i inorden).
+            //Stabelen inneholder alle forfedre på veien ned.
+        }
+
+        //i denne iteratoren representerer denne neste node som skal returneres, ikke den som du sist besøkte.
+        @Override
+        public boolean hasNext() {
+            return denne!=null;
+        }
+
+        //for å gå ett steg neste i inorden, må man gå et steg til høyre, så så mange steg som mulig til venstre. Hvis det ikke har et steg til høyre er neste node forrige i stabelen, eller hvis treet er tomt er neste null.
+        @Override
+        public T next() {
+            if (!hasNext()) throw new NoSuchElementException("Har ikke neste");
+            T tmp = denne.verdi; //vi skal returnere verdien til forrige verdi etter vi har gått videre
+            if (denne.høyre!=null){
+                denne = denne.høyre;
+                while(denne.venstre!=null){
+                    nodeStabel.push(denne);
+                    denne = denne.venstre;
+                }
+            } else {
+                if (!nodeStabel.tom())
+                    denne = nodeStabel.pop(); //hvis det ikke har et barn, er denne forrige i stabelen.
+                else
+                    denne = null;
+            }
+            return tmp;
+        }
+    }
+
+    private static final class Node<T>{
+        Node<T> venstre;
+        Node<T> høyre;
+        T verdi;
+
+        public Node(T verdi){
+            this.verdi = verdi;
+            this.høyre = null;
+            this.venstre = null;
+        }
+
+    }
+    private static final class NodePar<T>{
+        Node<T> current;
+        Node<T> forelder;
+        public NodePar(Node<T> current, Node<T> forelder){
+            this.current = current;
+            this.forelder = forelder;
+        }
     }
 
     @Override
@@ -148,32 +229,27 @@ class SBinTre<T> implements Beholder<T> {
         return finnNode(t)!=null;
     }
 
+    public String toString(){
+        StringJoiner sj = new StringJoiner(",","[","]");
+        inordenSJ(rot,sj);
+        return sj.toString();
+    }
+
+    private void inordenSJ(Node current, StringJoiner sj){
+        if (current == null) return;
+        inordenSJ(current.venstre, sj);
+        sj.add(current.verdi.toString());
+        inordenSJ(current.høyre,sj);
+    }
+
+
     @Override
     public void nullstill() {
 
     }
 
 
-    private static final class Node<T>{
-        Node<T> venstre;
-        Node<T> høyre;
-        T verdi;
 
-        public Node(T verdi){
-            this.verdi = verdi;
-            this.høyre = null;
-            this.venstre = null;
-        }
-
-    }
-    private static final class NodePar<T>{
-        Node<T> current;
-        Node<T> forelder;
-        public NodePar(Node<T> current, Node<T> forelder){
-            this.current = current;
-            this.forelder = forelder;
-        }
-    }
 }
 
 public class Oppgave {
