@@ -7,6 +7,7 @@ import ForelesningerØving.F8_Lister.Beholder;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 class SBinTre2<T> implements Beholder<T>, Iterable<T>{
     Node<T> rot;
@@ -205,6 +206,18 @@ Ett eller ingen barn → koble forelderen rett videre.*/
             }
         }
         return null;
+    }
+
+    private void inordenSJ(Node<T> current, StringJoiner sj){
+        if (current==null)return;
+        inordenSJ(current.venstre, sj);
+        sj.add(current.verdi.toString());
+        inordenSJ(current.høyre, sj);
+    }
+    public String toString(){
+        StringJoiner sj = new StringJoiner(",","[","]");
+        inordenSJ(rot, sj);
+        return sj.toString();
     }
 
     @Override
