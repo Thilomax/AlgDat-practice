@@ -151,8 +151,6 @@ Ett eller ingen barn → koble forelderen rett videre.*/
             antall--;
         }
         //0 eller 1 barn
-
-        //1 barn først:
         else{
             Node<T> b;
             if (current.venstre!=null) b= current.venstre;
