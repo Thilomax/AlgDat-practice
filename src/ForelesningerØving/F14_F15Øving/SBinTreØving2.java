@@ -97,6 +97,32 @@ class SBinTre2<T> implements Beholder<T>, Iterable<T>{
         return true;
     }
 
+    /*🌳 Når noden har to barn:
+
+Tenk: Jeg kan ikke bare fjerne denne, for den har to grener.
+
+Gå derfor ett steg til høyre, og så helt venstre — der finner du den neste verdien i rekkefølge.
+
+Kopiér den verdien opp til noden du skal slette.
+
+Nå er den nederste noden du fant “duplikat”, og den har høyst ett barn — fjern den på vanlig måte.
+
+Ferdig: treet beholder rekkefølgen, ingen hull.
+
+🌿 Når noden har ett eller ingen barn:
+
+Tenk: Jeg skal bare koble forelderen forbi denne noden.
+
+Hvis den har ett barn → la forelderen peke rett på barnet.
+
+Hvis den ikke har barn → la forelderen peke til null (blad fjernes).
+
+Hvis det var roten som ble slettet → la roten bli barnet i stedet.
+
+💡 Husketips:
+To barn → kopier og fjern etterfølgeren.
+Ett eller ingen barn → koble forelderen rett videre.*/
+
     @Override
     public boolean fjern(T t) {
         NodePar<T> par = finnNode(t);
@@ -122,14 +148,30 @@ class SBinTre2<T> implements Beholder<T>, Iterable<T>{
             } else {
                 q.venstre = neste.høyre;
             }
+            neste.høyre=null;
             antall--;
         }
-        //1 eller to barn
+        //0 eller 1 barn
 
         //1 barn først:
-        if (current.venstre == null || current.høyre == null){
+        else{
+            Node<T> b;
+            if (current.venstre!=null) b= current.venstre;
 
+            else b=current.høyre; //hvorfor sette b=current.høyre hvis current.venstre ikke finnes? fordi hvis den ene finnes tar vi det, hvis den ikke finnes tar vi den andre (som kan være null, men det funker).
+
+            if (forelder==null) rot=b;
+
+            //her setter vi bare (den riktige) pekeren til forelder til å peke på barnet til current istedenfor current.
+            else {
+                if (forelder.venstre == current)
+                    forelder.venstre=b;
+                else
+                    forelder.høyre=b;
+            }
+            antall--;
         }
+        return true;
     }
 
     @Override
