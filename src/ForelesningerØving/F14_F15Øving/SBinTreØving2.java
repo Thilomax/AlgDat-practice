@@ -148,7 +148,6 @@ Ett eller ingen barn → koble forelderen rett videre.*/
             } else {
                 q.venstre = neste.høyre;
             }
-            neste.høyre=null;
             antall--;
         }
         //0 eller 1 barn
