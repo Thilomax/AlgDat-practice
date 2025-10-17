@@ -202,19 +202,22 @@ class HuffmannTre{
         // 1 << n betyr "1 flyttet n biter til venstre",
         // som er det samme som 2^n.
 
+
         // Hvis n = 4, får du f.eks.:
         // 1 << 4 = 16 (binært: 10000)
 
-        // Denne brukes ofte som et utgangspunkt for å generere
+        // Denne brukes som et utgangspunkt for å generere
         // de kanoniske kodene, fordi man kan "gå nedover" nivåene
         // (lengdene) fra den lengste til den korteste koden
         // ved å høyreskifte (dele på 2) senere.
-        int posisjon = 1<< n; //hvorfor trenger vi 2^n? fordi det gir oss startpunktet til å finne koden til de lengste nodene. Siden de har n i lengde, gir dette oss et tall vi kan gjøre om til binær.
-        //det betyr flytt 1, n biter til venstre, altså 2^n.
+
+
+        int posisjon = 1<< n; //Så 2^n sier egentlig: “Hvis jeg har n biter, finnes det totalt 2^n forskjellige kombinasjoner.”
+        //hvor mange forskjellige binære tall kan jeg lage med n biter
+        //👉 2^n handler om antall mulige koder, ikke selve koden.
 
         //Eksempel:
         //1 << 4 = 16, som i binær form er 10000.
-
         //Men datamaskinen lagrer det som tallet 16, ikke som teksten "10000".
 
 
@@ -254,6 +257,66 @@ class HuffmannTre{
         //returnerer lista med kodene til hvert tegn
         return posisjoner;
     }
+
+
+    //Denne metoden tar en tekst (input) og gjør den om til en lang streng av 0 og 1 ved å slå opp Huffmann-koden til hvert tegn og lime dem sammen
+    public String kod(String input){
+        StringBuilder sb = new StringBuilder();
+        char[] inputArray = input.toCharArray();
+        String[] koder = finnKoder();
+
+        for (int i = 0; i < inputArray.length; i++){
+            //finner posisjonen til tegnet i Huffman-tabellen din, altså hvilken plass i alfabetet ditt det tegnet har (i er posisjonen til tegnet i teksten vi koder)
+            int pos = finn(inputArray[i]);
+            //legger til den tilsvarende koden til tegnet vi fant inn i stringbuilderen.
+            sb.append(koder[pos]);
+        }
+        //returnerer da en streng med alle kodene til alle tegnene i en lang streng.
+        return sb.toString();
+    }
+
+    public String kodKanonisk(String input){
+        StringBuilder sb = new StringBuilder();
+        char[] inputArray = input.toCharArray();
+        //eneste forskjellen:
+        String[] koder = finnKanoniskeKoder();
+
+        for (int i = 0; i < inputArray.length; i++){
+            int pos = finn(inputArray[i]);
+            sb.append(koder[pos]);
+        }
+        return sb.toString();
+    }
+
+    //denne metoden skal ta en kode og finne de riktige tegnene til den
+    public String dekod(String input){
+        StringBuilder sb = new StringBuilder();
+        char[] inputArray = input.toCharArray();
+        //pekeren:
+        Node denne = rot;
+
+        for (int i = 0; i < inputArray.length; i++){
+            if (inputArray[i] == 0)
+                denne = denne.venstre; // hvis den treffer en 0, gå et hakk til venstre
+            else
+                denne = denne.høyre; // hvis den treffer en 1, gå et hakk til høyre
+
+            //hvis den finner en bladnode:
+            if (denne.verdi !=0) {
+                sb.append(denne.verdi);
+                denne = rot;
+            }
+        }
+
+        //hvis denne != rot når løkken er ferdig, betyr det at du ikke endte på et blad etter siste bit.
+        //Med andre ord: du stoppet midt i treet — du begynte å lese en kode, men den ble aldri fullført.
+        //Derfor er den binære strengen ugyldig (den slutter ikke på et fullstendig tegn)
+        if (denne!=rot) throw new IllegalArgumentException("Ikke en lovlig tekst å dekode");
+        return sb.toString();
+    }
+
+    //Neste metode bygger det faktiske kanoniske treet basert på de kanoniske kodene vi har funnet.
+
 }
 
 public class HuffmannTreMain {
@@ -262,5 +325,6 @@ public class HuffmannTreMain {
         int[] frekvens = {17, 9, 5, 2, 12};
         HuffmannTre hf = new HuffmannTre(tegn, frekvens);
         hf.printKoder();
+        System.out.println(hf.kod("ABCDE"));
     }
 }
