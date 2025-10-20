@@ -316,7 +316,36 @@ class HuffmannTre{
     }
 
     //Neste metode bygger det faktiske kanoniske treet basert på de kanoniske kodene vi har funnet.
+    public void gjørKanonisk(){
+        String[] kanoniskeKoder = finnKanoniskeKoder();
 
+        //Fordi vi skal lage et nytt binærtre fra bunnen av basert på kodene:
+        Node nyRot = new Node();
+
+        //Går gjennom alle kodene
+        for (int i = 0; i<kanoniskeKoder.length;i++){
+            Node p = nyRot; //starter på roten for hver kode
+            //Gjør om hver kode til et char array
+            char[] kode = kanoniskeKoder[i].toCharArray();
+            //Går gjennom hvert tegn i koden
+            for (char c : kode){
+                if (c=='0') { //gå til venstre
+                    if (p.venstre==null) //hvis venstrenoden er null, så setter vi en ny node der. Det gjør at treet blir laget underveis med kodene. (trenger ikke være tegnnodene, selv de indre nodene blir opprettet her)
+                        p.venstre = new Node();
+                    p = p.venstre;
+                }
+                else { //gå til høyre
+                    if (p.høyre ==null)
+                        p.høyre = new Node();
+                    p = p.høyre;
+                }
+            }
+            //her har vi nådd et blad, fordi vi har gått gjennom alle tegnene i den nåværende koden.
+            //Dette blir gjort for hver kode. Den setter noden vi er på etter traverseringen til å ha verdien til dets respektive tegn.
+            p.verdi = tegn[i];
+        }
+        rot = nyRot;
+    }
 }
 
 public class HuffmannTreMain {
