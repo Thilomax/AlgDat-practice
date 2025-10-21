@@ -1,4 +1,4 @@
-package ForelesningerØving.F18;
+package ForelesningerØving.F18_HashMap_HashSet;
 
 import java.util.Objects;
 
@@ -172,16 +172,62 @@ class HashMap<N, V> implements Map<N, V>{
     }
 
     private void utvid() {
+        int nyDimensjon = 2*hash.length+1;
 
+        Node[] nyHash = (Node[]) new Object[nyDimensjon];
     }
 
     @Override
     public V fjern(N nøkkel) {
+        Objects.requireNonNull(nøkkel, "Null er ikke lov");
+        int indeks = finnIndeks(nøkkel);
+
+        //peker node som begynner på første node på den posisjonen
+        Node p = hash[indeks];
+
+        //"forrige"-node for å fjerne p.
+        Node q = null;
+
+
+        while(p!= null){
+
+            //Vi har funnet noden vi vil slette
+            if (p.nøkkel.equals(nøkkel)){
+                V tmp = p.verdi; //lagrer verdien
+
+                //hvis det var første node, altså forrige er null, da tar vi at den første noden (hash[indeks]) blir p.neste, altså vi hopper over første node.
+                if (q==null) hash[indeks] = p.neste;
+
+                //hvis noden ikke var første node, peker vi forrige node sin neste til p.neste, hopper altså over p.
+                else {
+                    q.neste = p.neste;
+                }
+                //reduserer antall og returnerer verdien
+                antall--;
+                return tmp;
+            }
+            //går videre
+            else {
+                q = p;
+                p = p.neste;
+            }
+        }
+        //har ikke funnet noden
         return null;
     }
 
     @Override
     public V hent(N nøkkel) {
+        Objects.requireNonNull(nøkkel, "Null er ikke lov");
+        int indeks = finnIndeks(nøkkel);
+        Node p = hash[indeks];
+
+        //vi må gå gjennom alle nodene på denne indeksen, fordi denne indeksen har flere nøkler, så vi må sikre at vi sender tilbake verdien til den riktige noden.
+        while (p!=null){
+            if (p.nøkkel.equals(nøkkel))
+                return p.verdi;
+            p=p.neste;
+        }
         return null;
     }
 }
