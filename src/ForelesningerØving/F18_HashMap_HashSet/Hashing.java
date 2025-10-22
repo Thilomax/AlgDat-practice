@@ -42,15 +42,15 @@ class Identitet<T>{
         *   Test t1 = new Test("Thilo", 21);
             System.out.println(t1.equals(t1)); // true*/
 
-        //Dette sjekker først om obj == null, da kan den ikke være lik noe.
+        //Dette sjekker først om DUMMY == null, da kan den ikke være lik noe.
         //Så sjekker den om objektet er fra samme klasse som vårt, hvis ikke kan de ikke være like.
         if (obj==null || getClass() != obj.getClass()) return false;
 
-        //Nå kan vi caste obj til Identitet, fordi vi kan garantere at obj faktisk er et Identitet-objekt.
-        //Vi caster, fordi parameteret vårt er Object, ikke Identitet, så for å kunne gjøre obj.id så må det castes til Identitet.
-        Identitet<?> identitet = (Identitet<?>) obj; //Dette forteller java at obj er av type Identitet.
+        //Nå kan vi caste DUMMY til Identitet, fordi vi kan garantere at DUMMY faktisk er et Identitet-objekt.
+        //Vi caster, fordi parameteret vårt er Object, ikke Identitet, så for å kunne gjøre DUMMY.id så må det castes til Identitet.
+        Identitet<?> identitet = (Identitet<?>) obj; //Dette forteller java at DUMMY er av type Identitet.
 
-        //Vi castet obj til å bli objektet identitet av typen Identitet, så nå kan vi bruke dets id og navn til å sammenligne
+        //Vi castet DUMMY til å bli objektet identitet av typen Identitet, så nå kan vi bruke dets id og navn til å sammenligne
         return id == identitet.id && Objects.equals(navn, identitet.navn);
     }
 }
@@ -172,9 +172,47 @@ class HashMap<N, V> implements Map<N, V>{
     }
 
     private void utvid() {
+
+        //størrelsen på det nye arrayet
         int nyDimensjon = 2*hash.length+1;
 
+        //oppretter et nytt array
         Node[] nyHash = (Node[]) new Object[nyDimensjon];
+
+        //vi må nå gå gjennom hele lista, OG alle nodene per indeks, så vi trenger en pekernode P
+        Node p;
+        for (int i = 0; i < hash.length; i++){
+
+            //setter P til å være første node på den posisjonen
+            p = hash[i];
+
+            //itererer ned langs alle nodene
+            while(p!= null){
+
+                //først finner vi indeksen denne noden skal ha i det nye arrayet. Det gjør vi vet å ta hashcoden, gjøre den posistiv, og så ta modulo NY DIMENSJONE for å gjøre det om til indeksen.
+
+                int hash = p.nøkkel.hashCode(); //Vi trenger p.NØKKEL sin hashcode, ikke p, fordi vi vil finne indeksen hvor den skal ligge. p.hashcode gir oss hashcoden til den spesifikke noden, men vi vil ha nøkkelen.
+                hash = hash & 0x7fffffff;       //gjør den positiv
+
+                int indeks = hash % nyDimensjon;//gjør den om til en indeks.
+                //grunnen til nyDimensjon: Vi må “flytte” elementene (rehashing) fordi hele matematikken for hvordan nøkler mapper til indekser endres når tabellen vokser.
+                // Hvis vi ikke hadde gjort det: Resultatet blir: alle kolliderer fortsatt i de første 13 plassene, mens alle de nye posisjonene blir nesten tomme.
+
+                Node neste = p.neste;// ta vare på neste før vi rører p
+                p.neste = nyHash[indeks]; // link p inn foran
+                nyHash[indeks] = p;  // p blir nytt hode
+                p= neste;           // videre i gammel kjede
+            }
+        }
+
+        //setter hash til å peke på nyHash
+        hash = nyHash;
+        //endrer dimensjonen til å bli den nye dimensjonen
+        dimensjon = nyDimensjon;
+
+        //definerer en ny grense ved å gange tettheten (0.75) med størrelsen
+        grense = (int) (tetthet * nyDimensjon);
+
     }
 
     @Override
@@ -229,5 +267,60 @@ class HashMap<N, V> implements Map<N, V>{
             p=p.neste;
         }
         return null;
+    }
+}
+
+class HashSet<V> implements Set<V>{
+
+    // Vi bruker vår egen HashMap i bakgrunnen.
+    // Nøkkelen = verdien i settet, Verdien = et "dummy" objekt som bare fungerer som plassholder.
+    private HashMap<V, Object> hm;
+
+
+
+    // Et konstant objekt som vi bruker som "verdi" for alle nøkler i hashmappen.
+    // Selve objektet har ingen betydning — det er bare for å fylle map'en.
+    private static final Object DUMMY = new Object();
+
+    // Konstruktør
+    public HashSet(HashMap hm) {
+        this.hm = hm;
+    }
+
+    // Legger inn et element i settet.
+    // Hvis verdien finnes fra før, returner verdien (som da "ble overskrevet").
+    // Hvis den ikke fantes, legg den inn og returner null.
+    @Override
+    public V leggInn(V verdi) {
+        Objects.requireNonNull(verdi, "Null er ikke lov i HashSet");
+
+        // Bruker HashMap sin leggInn(). Den returnerer gammel verdi (DUMMY) hvis nøkkelen fantes.
+        Object gammel = hm.leggInn(verdi, DUMMY);
+
+        // Hvis gammel != null → elementet fantes fra før (overskriving)
+        // Returner verdien for å indikere at den ble "overskrevet"
+        if (gammel != null) return verdi;
+
+        // Hvis den ikke fantes fra før, returner null
+        return null;
+    }
+
+    // Fjerner en verdi hvis den finnes, returnerer verdien som ble fjernet.
+    // Hvis den ikke fantes, returner null.
+    @Override
+    public V fjern(V verdi) {
+        Objects.requireNonNull(verdi, "Null er ikke lov i HashSet");
+
+        Object resultat = hm.fjern(verdi);
+        return (resultat != null) ? verdi : null;
+    }
+
+    // Returnerer verdien hvis den finnes i settet, ellers null.
+    @Override
+    public V inneholder(V verdi) {
+        Objects.requireNonNull(verdi, "Null er ikke lov i HashSet");
+
+        Object resultat = hm.hent(verdi);
+        return (resultat != null) ? verdi : null;
     }
 }
