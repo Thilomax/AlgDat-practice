@@ -1,6 +1,6 @@
 package ForelesningerØving.F8_Lister;
 
-interface Liste<T> extends Beholder<T>{
+public interface Liste<T> extends Beholder<T>{
     /*Så forskjellen på en beholder og en liste er at en liste er en beholder som også har informasjon om indeks for å ha rekkefølge. Derfor extender interfacet Liste Beholder. For å legge inn metodene, men utvide dem til å inneholde indeks*/
 
 
