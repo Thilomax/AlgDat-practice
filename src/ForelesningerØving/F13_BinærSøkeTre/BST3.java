@@ -90,7 +90,10 @@ public class BST3 {
         public boolean fjern(T t) {
             Objects.requireNonNull(t);
             NodePar<T> slettes = finnNodeIterativ(t);
+            if (slettes == null || slettes.denne == null) return false;
             fjernNode(slettes.denne,slettes.forelder);
+            antall--;
+
             return true;
         }
 
