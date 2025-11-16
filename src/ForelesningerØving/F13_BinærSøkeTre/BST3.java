@@ -116,6 +116,7 @@ public class BST3 {
                 } else{
                     q.høyre = null;
                 }
+                antall--;
             }
 
             //1 barnstilfellet
@@ -127,6 +128,7 @@ public class BST3 {
                     q.venstre = p.venstre;
                 else
                     q.høyre = p.venstre;
+                antall--;
             }
             //hvis den bare har et høyrebarn
             else if (p.venstre ==null){
@@ -136,6 +138,7 @@ public class BST3 {
                     q.venstre = p.høyre;
                 } else
                     q.høyre = p.høyre;
+                antall--;
             }
 
             // to barn
@@ -166,24 +169,47 @@ public class BST3 {
 
         @Override
         public boolean inneholder(T t) {
+            Objects.requireNonNull(t);
+            Node<T> p = rot;
+            while(p!=null){
+                int cmpv = cmp.compare(t, p.verdi);
+                if (cmpv==0)
+                    return true;
+                if (cmpv<0)
+                    p = p.venstre;
+                else
+                    p= p.høyre;
+            }
             return false;
         }
 
         @Override
         public void nullstill() {
+            if (rot == null ) return;
+            nullstillRekursivt(rot);
+            rot = null;
+            antall = 0;
+        }
 
+        private void nullstillRekursivt(Node<T> p){
+            if (p==null) return;
+            nullstillRekursivt(p.venstre);
+            nullstillRekursivt(p.høyre);
+
+            p.venstre= null;
+            p.høyre = null;
         }
 
         @Override
         public Iterator<T> iterator() {
-            return null;
+            return new InordenIterator();
         }
         private class InordenIterator implements Iterator<T>{
-
+            Node<T> denne;
 
             @Override
             public boolean hasNext() {
-                return false;
+                return denne !=null;
             }
             @Override
             public T next() {

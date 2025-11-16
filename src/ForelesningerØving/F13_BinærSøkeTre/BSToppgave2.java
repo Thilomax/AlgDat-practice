@@ -32,6 +32,8 @@ public class BSToppgave2 {
             public boolean hasNext() {
                 return (denne != null);
             }
+
+            //denne metoden finner basically neste i inorden og derfor trenger den stabel, for å kunne komme seg opp igjen.
             @Override
             public T next() {
                 T tmp = denne.verdi;
