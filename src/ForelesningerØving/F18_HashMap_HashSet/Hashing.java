@@ -321,6 +321,9 @@ class HashSet<V> implements Set<V>{
         Objects.requireNonNull(verdi, "Null er ikke lov i HashSet");
 
         Object resultat = hm.hent(verdi);
-        return (resultat != null) ? verdi : null;
+        if  (resultat == null)
+            return null;
+        else
+            return verdi;
     }
 }

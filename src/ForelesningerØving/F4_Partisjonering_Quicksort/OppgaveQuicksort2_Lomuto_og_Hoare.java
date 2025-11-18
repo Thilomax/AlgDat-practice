@@ -46,7 +46,7 @@ public class OppgaveQuicksort2_Lomuto_og_Hoare {
     public static void quicksort (int[] a, int v, int h){
         if (v>=h) return; //dette er basistilfellet. Her skal rekursive metoden stoppe. Vi er da ferdig. Fordi: da har den funnet krysspunktet på høyre og venstre, og vi vil ikke at de skal krysse hverandre.
         int parisjoneringsIndeks = hoarePartition(a, v, h);
-        quicksort(a, v, parisjoneringsIndeks-1); //dette sorterer venstre del, frem til krysspunktet.
+        quicksort(a, v, parisjoneringsIndeks); //dette sorterer venstre del, frem til krysspunktet.
         quicksort(a,parisjoneringsIndeks+1, h); //dette sorterer høyre del, fra krysspunktet. Dette fortsetter frem til v og h krysser hverandre.
     }
     //Metode for å enkelt putte inn arrayet sitt i en metode, så man slipper å putte inn v og h manuelt

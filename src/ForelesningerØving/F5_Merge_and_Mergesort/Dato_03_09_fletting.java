@@ -80,7 +80,7 @@ public class Dato_03_09_fletting {
         // Kopier elementene til andre halvdel
         // NB: dette er det samme som å bruke k videre, men her brukes i+halve
         for (int i = 0; i < tabell.length - halve; i++) {
-            andreHalvdel[i] = tabell[i + halve];
+            andreHalvdel[i] = tabell[k++];
         }
 
         // Rekursiv kallesortering:

@@ -67,6 +67,24 @@ Ytre løkke gjentar prosessen nok ganger til alle har “boblet” på plass.
         }
     }
 
+    public static void boblesortering2(int[] a){
+        for (int i = a.length-1; i >= 0;i--){
+            for (int j = 0; j<i; j++){
+                if (a[j]> a[j+1])
+                    bytt(a,j,j+1);
+            }
+        }
+    }
+
+    public static void boblesortering3(int[] a){
+        for (int i = 0; i < a.length; i++){
+            //dette funker fordi VI BYTTER JO så de siste elementene vil ikke være forrest lenger. Derfor kan vi bare gå fra 0 hver gang
+            for (int j = 0; j <a.length-1-i; j++){
+                if (a[j] > a[j+1]) bytt(a,j,j+1);
+            }
+        }
+    }
+
     // Hjelpemetode som finner indeksen til minste element i et gitt intervall [fra : til)
     public static int min(int[] a, int fra, int til) {
         int min = fra;  // Start med å anta at elementet på 'fra' er minst
